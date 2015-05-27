@@ -44,7 +44,7 @@ def explore(n=10):
     var kernel_name = getParameterByName('kernel_name') || 'python3';
     // Change the code before thebe gets its hand on the `<pre>` block
     if (code) {
-      $('#singlecell').text(decodeURIComponent(code));
+      $('#singlecell').text(code);
     }
 
     thebe = new Thebe({
