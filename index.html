@@ -73,6 +73,11 @@ def explore(n=10):
       return urlParams
   } // getUrlParams
 
+  // Check Location
+	if ( document.location.protocol === 'file:' ) {
+		alert("The HTML5 History API doesn't work on files, please use a local server. I'd recommend node's http-server.");
+  }
+
   $( document ).ready(function(){
 
     params = getUrlParams();
@@ -90,11 +95,30 @@ def explore(n=10):
       kernel_name: kernel_name
     });
 
+    var createState = function() {
+      return {
+        kernel_name: thebe.options.kernel_name,
+        code: thebe.cells[0].get_text()
+      }
+    }
+
+    history.replaceState(createState(), document.title, document.location.href);
+
     $('#share').click(function(e) {
-      var newLoc = "?code=" + encodeURIComponent(thebe.cells[0].get_text());
-      newLoc = newLoc + "&kernel_name=" + kernel_name;
-      window.location.search = newLoc;
+      var state = createState();
+
+      var newLoc = "?code=" + encodeURIComponent(state.code);
+      newLoc = newLoc + "&kernel_name=" + state.kernel_name;
+
+      history.pushState(state, null, newLoc)
+
     });
+
+    window.onpopstate = function(event) {
+      // Bring the old code back
+      thebe.cells[0].set_text(event.state.code);
+      // TODO: Bring back the kernel
+    }
 
 	});
 	</script>
