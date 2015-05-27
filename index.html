@@ -24,9 +24,16 @@ def explore(n=10):
     plt.plot(x, np.sin(x), x, np.cos(x));
 	</pre>
 
+  <style>
+    .zeroclipboard-is-active {
+      border-style: 'inset';
+      color: white;
+    }
+  </style>
+
   <div class="share-cell" style="display:block; width:600px; margin-left:auto; margin-right:auto;">
     <div class="thebe_controls">
-      <button id="share" style="display:block;" data-clipboard-text="Share" title="Share me!">Share</button>
+      <button id="save" style="display:block;">Save</button>
     </div>
 
     <h4>About <a href="https://github.com/rgbkrk/share-cell">Share Cell</a></h4>
@@ -86,24 +93,29 @@ def explore(n=10):
     // Inject code on the page
     var code = params.code || $('#singlecell').text();
     var kernel_name = params.kernel_name || 'python3';
-    // Change the code before thebe gets its hand on the `<pre>` block
-    if (code) {
-      $('#singlecell').text(code);
-    }
 
     var thebe = new Thebe({
       url:"https://tmp23.tmpnb.org",
       kernel_name: kernel_name
     });
 
-    var createState = function() {
+    var createState = function(code, kernel_name) {
       return {
-        kernel_name: thebe.options.kernel_name,
-        code: thebe.cells[0].get_text()
+        code: code || thebe.cells[0].get_text(),
+        kernel_name: kernel_name || thebe.options.kernel_name
       }
     }
 
-    var zclipboard = new ZeroClipboard($('#share'));
+    var updateState = function(state) {
+      thebe.cells[0].set_text(state.code)
+      //TODO: Update thebe's kernel
+    }
+
+    initialState = createState(code, kernel_name);
+    updateState(initialState);
+    history.replaceState(initialState, document.title, document.location.href);
+
+    var zclipboard = new ZeroClipboard($('#save'));
 
     zclipboard.on("ready", function(readyEvent){
 
@@ -123,22 +135,17 @@ def explore(n=10):
         if (JSON.stringify(history.state) !== JSON.stringify(state)) {
           history.pushState(state, null, newLoc);
         } else {
-          console.log("Cell still the same, not changing history. Still copied the URL for you!")
+          console.log("Cell still the same, not changing history. Still copied the URL for you!");
         }
 
       });
 
       zclipboard.on("aftercopy", function(event) {
-        //event.target.style.display = "none";
       });
     });
 
-    history.replaceState(createState(), document.title, document.location.href);
-
     window.onpopstate = function(event) {
-      // Bring the old code back
-      thebe.cells[0].set_text(event.state.code);
-      // TODO: Bring back the kernel
+      updateState(event.state);
     }
 
 	});
