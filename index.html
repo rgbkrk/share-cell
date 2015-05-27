@@ -72,16 +72,39 @@ def explore(n=10):
       $('#singlecell').text(code);
     }
 
+    // Initialize the history
+    var stateObj = {
+      kernel_name: kernel_name,
+      code: code
+    }
+    history.pushState(stateObj, "");
+
     thebe = new Thebe({
       url:"https://tmp23.tmpnb.org",
       kernel_name: kernel_name
     });
 
     $('#share').click(function(e) {
-      var newLoc = "?code=" + encodeURIComponent(thebe.cells[0].get_text());
+
+      code = thebe.cells[0].get_text();
+
+      var newLoc = "?code=" + encodeURIComponent(code);
       newLoc = newLoc + "&kernel_name=" + kernel_name;
-      window.location.search = newLoc;
+
+      var stateObj = {kernel_name: kernel_name,
+                      code: code
+                      // Later we can store the outputs in the history
+                      //outputs: thebe.cells[0].output_area.outputs
+      };
+      history.pushState(stateObj, "", newLoc)
+
     });
+
+    window.onpopstate = function(event) {
+      // Bring the old code back
+      thebe.cells[0].set_text(event.state.code);
+      // TODO: Bring back the kernel
+    }
 
 	});
 	</script>
