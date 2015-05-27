@@ -1,7 +1,7 @@
 <!DOCTYPE HTML>
 <html lang="en">
 <head>
-  <title>Jupyter Fiddle</title>
+  <title>Share cell</title>
   <link rel="stylesheet" href="thebe.css" type="text/css"/>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
   <script src="https://rawgit.com/oreillymedia/thebe/master/static/main-built.js" type="text/javascript" charset="utf-8"></script>
@@ -23,25 +23,50 @@ def explore(n=10):
     plt.plot(x, np.sin(x), x, np.cos(x));
 	</pre>
 
-
-
   <div class="thebe_controls" style="display:block; width:600px; margin-left:auto; margin-right:auto;">
     <button class="thebe_controls" data-action="share" id="share" style="display:block;">Share</button>
   </div>
 
 	<script>
-  function getParameterByName(name) {
-      name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
-      var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
-          results = regex.exec(location.search);
-      return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
-  }
+  /**
+   * Returns a bare object of the URL's query parameters.
+   * You can pass just a query string rather than a complete URL.
+   * The default URL is the current page.
+   *
+   * From: http://stackoverflow.com/questions/901115/how-can-i-get-query-string-values-in-javascript
+   */
+  function getUrlParams (url) {
+      // http://stackoverflow.com/a/23946023/2407309
+      if (typeof url == 'undefined') {
+          url = window.location.search
+      }
+      var url = url.split('#')[0] // Discard fragment identifier.
+      var queryString = url.split('?')[1]
+      if (!queryString) {
+          if (url.search('=') !== false) {
+              queryString = url
+          }
+      }
+      var urlParams = {}
+      if (queryString) {
+          var keyValuePairs = queryString.split('&')
+          for (var i = 0; i < keyValuePairs.length; i++) {
+              var keyValuePair = keyValuePairs[i].split('=')
+              var paramName = keyValuePair[0]
+              var paramValue = keyValuePair[1] || ''
+              urlParams[paramName] = decodeURIComponent(paramValue.replace(/\+/g, ' '))
+          }
+      }
+      return urlParams
+  } // getUrlParams
+
   $( document ).ready(function(){
 
+    params = getUrlParams();
+
     // Inject code on the page
-    // Yay for XSS
-    var code = getParameterByName('code');
-    var kernel_name = getParameterByName('kernel_name') || 'python3';
+    var code = params.code || $('#singlecell').text();
+    var kernel_name = params.kernel_name || 'python3';
     // Change the code before thebe gets its hand on the `<pre>` block
     if (code) {
       $('#singlecell').text(code);
