@@ -1,13 +1,13 @@
 <!DOCTYPE HTML>
 <html lang="en">
 <head>
-  <title>Thebe Demo</title>
+  <title>Jupyter Fiddle</title>
   <link rel="stylesheet" href="thebe.css" type="text/css"/>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
   <script src="https://rawgit.com/oreillymedia/thebe/master/static/main-built.js" type="text/javascript" charset="utf-8"></script>
 </head>
 <body>
-  <pre data-executable='true'>
+  <pre data-executable='true' id='singlecell'>
 %matplotlib inline
 import numpy as np
 import matplotlib.pyplot as plt
@@ -24,8 +24,27 @@ def explore(n=10):
 	</pre>
 
 	<script>
-	$(function(){
-	  new Thebe({url:"https://tmp23.tmpnb.org", kernel_name: "python3"});
+  function getParameterByName(name) {
+      name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+      var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+          results = regex.exec(location.search);
+      return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+  }
+  $( document ).ready(function(){
+
+    // Inject code on the page
+    // Yay for XSS
+    var code = getParameterByName('code');
+    var kernel_name = getParameterByName('kernel_name') || 'python3';
+    // Change the code before thebe gets its hand on the `<pre>` block
+    if (code) {
+      $('#singlecell').text(decodeURIComponent(code));
+    }
+
+    thebe = new Thebe({
+      url:"https://tmp23.tmpnb.org",
+      kernel_name: kernel_name
+    });
 	});
 	</script>
 </body>
