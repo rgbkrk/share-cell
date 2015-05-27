@@ -23,8 +23,21 @@ def explore(n=10):
     plt.plot(x, np.sin(x), x, np.cos(x));
 	</pre>
 
-  <div class="thebe_controls" style="display:block; width:600px; margin-left:auto; margin-right:auto;">
-    <button class="thebe_controls" data-action="share" id="share" style="display:block;">Share</button>
+  <div class="share-cell" style="display:block; width:600px; margin-left:auto; margin-right:auto;">
+    <div class="thebe_controls">
+      <button data-action="share" id="share" style="display:block;">Share</button>
+    </div>
+
+    <h4>About <a href="https://github.com/rgbkrk/share-cell">Share Cell</a></h4>
+    <p>
+      This runs <a href="http://jupyter.org">Jupyter</a> kernels inside of Docker containers,
+      <a href="https://github.com/jupyter/tmpnb">through a temporary notebook system</a>.
+      The frontend exposed here is <a href="https://github.com/oreillymedia/thebe">O'Reilly Media's Thebe</a>.
+    </p>
+    <p>
+      There is no network access and operations are limited. If you find a bug, <a href="https://github.com/rgbkrk/share-cell/issues">report it</a>.
+    </p>
+    <p>Hosting for the kernels is provided by <a href="https://developer.rackspace.com">developer.rackspace.com</a>.
   </div>
 
 	<script>
