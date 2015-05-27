@@ -5,6 +5,7 @@
   <link rel="stylesheet" href="thebe.css" type="text/css"/>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
   <script src="https://rawgit.com/oreillymedia/thebe/master/static/main-built.js" type="text/javascript" charset="utf-8"></script>
+  <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/zeroclipboard/2.2.0/ZeroClipboard.js"></script>
 </head>
 <body>
   <pre data-executable='true' id='singlecell'>
@@ -23,9 +24,16 @@ def explore(n=10):
     plt.plot(x, np.sin(x), x, np.cos(x));
 	</pre>
 
+  <style>
+    .zeroclipboard-is-active {
+      border-style: 'inset';
+      color: white;
+    }
+  </style>
+
   <div class="share-cell" style="display:block; width:600px; margin-left:auto; margin-right:auto;">
     <div class="thebe_controls">
-      <button data-action="share" id="share" style="display:block;">Share</button>
+      <button id="save" style="display:block;">Save</button>
     </div>
 
     <h4>About <a href="https://github.com/rgbkrk/share-cell">Share Cell</a></h4>
@@ -80,44 +88,64 @@ def explore(n=10):
 
   $( document ).ready(function(){
 
-    params = getUrlParams();
+    var params = getUrlParams();
 
     // Inject code on the page
     var code = params.code || $('#singlecell').text();
     var kernel_name = params.kernel_name || 'python3';
-    // Change the code before thebe gets its hand on the `<pre>` block
-    if (code) {
-      $('#singlecell').text(code);
-    }
 
-    thebe = new Thebe({
+    var thebe = new Thebe({
       url:"https://tmp23.tmpnb.org",
       kernel_name: kernel_name
     });
 
-    var createState = function() {
+    var createState = function(code, kernel_name) {
       return {
-        kernel_name: thebe.options.kernel_name,
-        code: thebe.cells[0].get_text()
+        code: code || thebe.cells[0].get_text(),
+        kernel_name: kernel_name || thebe.options.kernel_name
       }
     }
 
-    history.replaceState(createState(), document.title, document.location.href);
+    var updateState = function(state) {
+      thebe.cells[0].set_text(state.code)
+      //TODO: Update thebe's kernel
+    }
 
-    $('#share').click(function(e) {
-      var state = createState();
+    initialState = createState(code, kernel_name);
+    updateState(initialState);
+    history.replaceState(initialState, document.title, document.location.href);
 
-      var newLoc = "?code=" + encodeURIComponent(state.code);
-      newLoc = newLoc + "&kernel_name=" + state.kernel_name;
+    var zclipboard = new ZeroClipboard($('#save'));
 
-      history.pushState(state, null, newLoc)
+    zclipboard.on("ready", function(readyEvent){
 
+      zclipboard.on("copy", function(event) {
+        var state = createState();
+
+        var newLoc = "?code=" + encodeURIComponent(state.code);
+        newLoc = newLoc + "&kernel_name=" + state.kernel_name;
+
+        // Copying the path before we end up redirecting
+        var clipboard = event.clipboardData;
+        var fullURL = location.protocol + '//' + location.host + location.pathname + newLoc;
+        // This will get better with the use of the History API
+        clipboard.setData("text/plain", fullURL);
+
+        // If they're directly compatible states, don't push the state
+        if (JSON.stringify(history.state) !== JSON.stringify(state)) {
+          history.pushState(state, null, newLoc);
+        } else {
+          console.log("Cell still the same, not changing history. Still copied the URL for you!");
+        }
+
+      });
+
+      zclipboard.on("aftercopy", function(event) {
+      });
     });
 
     window.onpopstate = function(event) {
-      // Bring the old code back
-      thebe.cells[0].set_text(event.state.code);
-      // TODO: Bring back the kernel
+      updateState(event.state);
     }
 
 	});
