@@ -53,7 +53,9 @@ def explore(n=10):
     });
 
     $('#share').click(function(e) {
-      window.location.search = "?code=" + encodeURIComponent(thebe.cells[0].get_text())
+      var newLoc = "?code=" + encodeURIComponent(thebe.cells[0].get_text());
+      newLoc = newLoc + "&kernel_name=" + kernel_name;
+      window.location.search = newLoc;
     });
 
 	});
