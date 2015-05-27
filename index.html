@@ -23,6 +23,12 @@ def explore(n=10):
     plt.plot(x, np.sin(x), x, np.cos(x));
 	</pre>
 
+
+
+  <div class="thebe_controls" style="display:block; width:600px; margin-left:auto; margin-right:auto;">
+    <button class="thebe_controls" data-action="share" id="share" style="display:block;">Share</button>
+  </div>
+
 	<script>
   function getParameterByName(name) {
       name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
@@ -45,6 +51,11 @@ def explore(n=10):
       url:"https://tmp23.tmpnb.org",
       kernel_name: kernel_name
     });
+
+    $('#share').click(function(e) {
+      window.location.search = "?code=" + encodeURIComponent(thebe.cells[0].get_text())
+    });
+
 	});
 	</script>
 </body>
