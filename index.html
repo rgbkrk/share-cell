@@ -5,6 +5,7 @@
   <link rel="stylesheet" href="thebe.css" type="text/css"/>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
   <script src="https://rawgit.com/oreillymedia/thebe/master/static/main-built.js" type="text/javascript" charset="utf-8"></script>
+  <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/zeroclipboard/2.2.0/ZeroClipboard.js"></script>
 </head>
 <body>
   <pre data-executable='true' id='singlecell'>
@@ -25,7 +26,7 @@ def explore(n=10):
 
   <div class="share-cell" style="display:block; width:600px; margin-left:auto; margin-right:auto;">
     <div class="thebe_controls">
-      <button data-action="share" id="share" style="display:block;">Share</button>
+      <button id="share" style="display:block;" data-clipboard-text="Share" title="Share me!">Share</button>
     </div>
 
     <h4>About <a href="https://github.com/rgbkrk/share-cell">Share Cell</a></h4>
@@ -80,7 +81,7 @@ def explore(n=10):
 
   $( document ).ready(function(){
 
-    params = getUrlParams();
+    var params = getUrlParams();
 
     // Inject code on the page
     var code = params.code || $('#singlecell').text();
@@ -90,7 +91,7 @@ def explore(n=10):
       $('#singlecell').text(code);
     }
 
-    thebe = new Thebe({
+    var thebe = new Thebe({
       url:"https://tmp23.tmpnb.org",
       kernel_name: kernel_name
     });
@@ -102,17 +103,37 @@ def explore(n=10):
       }
     }
 
-    history.replaceState(createState(), document.title, document.location.href);
+    var zclipboard = new ZeroClipboard($('#share'));
 
-    $('#share').click(function(e) {
-      var state = createState();
+    zclipboard.on("ready", function(readyEvent){
 
-      var newLoc = "?code=" + encodeURIComponent(state.code);
-      newLoc = newLoc + "&kernel_name=" + state.kernel_name;
+      zclipboard.on("copy", function(event) {
+        var state = createState();
 
-      history.pushState(state, null, newLoc)
+        var newLoc = "?code=" + encodeURIComponent(state.code);
+        newLoc = newLoc + "&kernel_name=" + state.kernel_name;
 
+        // Copying the path before we end up redirecting
+        var clipboard = event.clipboardData;
+        var fullURL = location.protocol + '//' + location.host + location.pathname + newLoc;
+        // This will get better with the use of the History API
+        clipboard.setData("text/plain", fullURL);
+
+        // If they're directly compatible states, don't push the state
+        if (JSON.stringify(history.state) !== JSON.stringify(state)) {
+          history.pushState(state, null, newLoc);
+        } else {
+          console.log("Cell still the same, not changing history. Still copied the URL for you!")
+        }
+
+      });
+
+      zclipboard.on("aftercopy", function(event) {
+        //event.target.style.display = "none";
+      });
     });
+
+    history.replaceState(createState(), document.title, document.location.href);
 
     window.onpopstate = function(event) {
       // Bring the old code back
