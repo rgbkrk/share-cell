@@ -102,13 +102,22 @@ def explore(n=10):
     var createState = function(code, kernel_name) {
       return {
         code: code || thebe.cells[0].get_text(),
-        kernel_name: kernel_name || thebe.options.kernel_name
+        kernel_name: kernel_name || thebe.options.kernel_name,
+        // Despite the name, this is a full object
+        outputs: thebe.cells[0].output_area.toJSON()
       }
     }
 
     var updateState = function(state) {
-      thebe.cells[0].set_text(state.code)
+      thebe.cells[0].set_text(state.code);
       //TODO: Update thebe's kernel
+
+      // Clear old output first
+      thebe.cells[0].output_area.clear_output();
+      // Restore outputs
+      if (state.outputs) {
+        thebe.cells[0].output_area.fromJSON(state.outputs)
+      }
     }
 
     initialState = createState(code, kernel_name);
