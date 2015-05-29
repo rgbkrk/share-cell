@@ -6,6 +6,7 @@
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
   <script src="https://rawgit.com/oreillymedia/thebe/master/static/main-built.js" type="text/javascript" charset="utf-8"></script>
   <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/zeroclipboard/2.2.0/ZeroClipboard.js"></script>
+  <script type="text/javascript" src="sharecell.js"></script>
 </head>
 <body>
   <pre data-executable='true' id='singlecell'>
@@ -48,88 +49,32 @@ def explore(n=10):
     <p>Hosting for the kernels is provided by <a href="https://developer.rackspace.com">developer.rackspace.com</a>.
   </div>
 
-	<script>
-  /**
-   * Returns a bare object of the URL's query parameters.
-   * You can pass just a query string rather than a complete URL.
-   * The default URL is the current page.
-   *
-   * From: http://stackoverflow.com/questions/901115/how-can-i-get-query-string-values-in-javascript
-   */
-  function getUrlParams (url) {
-      // http://stackoverflow.com/a/23946023/2407309
-      if (typeof url == 'undefined') {
-          url = window.location.search
-      }
-      var url = url.split('#')[0] // Discard fragment identifier.
-      var queryString = url.split('?')[1]
-      if (!queryString) {
-          if (url.search('=') !== false) {
-              queryString = url
-          }
-      }
-      var urlParams = {}
-      if (queryString) {
-          var keyValuePairs = queryString.split('&')
-          for (var i = 0; i < keyValuePairs.length; i++) {
-              var keyValuePair = keyValuePairs[i].split('=')
-              var paramName = keyValuePair[0]
-              var paramValue = keyValuePair[1] || ''
-              urlParams[paramName] = decodeURIComponent(paramValue.replace(/\+/g, ' '))
-          }
-      }
-      return urlParams
-  } // getUrlParams
-
-  // Check Location
-	if ( document.location.protocol === 'file:' ) {
-		alert("The HTML5 History API doesn't work on files, please use a local server. I'd recommend node's http-server.");
-  }
+  <script>
 
   $( document ).ready(function(){
 
     var params = getUrlParams();
-
     // Inject code on the page
     var code = params.code || $('#singlecell').text();
     var kernel_name = params.kernel_name || 'python3';
+    var nburl = 'https://tmp23.tmpnb.org';
 
-    var thebe = new Thebe({
-      url:"https://tmp23.tmpnb.org",
-      kernel_name: kernel_name
-    });
+    var shareCell = new ShareCell(code, kernel_name, nburl);
+    window.shareCell = shareCell;
 
-    var createState = function(code, kernel_name) {
-      return {
-        code: code || thebe.cells[0].get_text(),
-        kernel_name: kernel_name || thebe.options.kernel_name,
-        // Despite the name, this is a full object
-        outputs: thebe.cells[0].output_area.toJSON()
-      }
-    }
+    initialState = shareCell.state(code,kernel_name);
+    shareCell.replaceState(initialState);
 
-    var updateState = function(state) {
-      thebe.cells[0].set_text(state.code);
-      //TODO: Update thebe's kernel
-
-      // Clear old output first
-      thebe.cells[0].output_area.clear_output();
-      // Restore outputs
-      if (state.outputs) {
-        thebe.cells[0].output_area.fromJSON(state.outputs)
-      }
-    }
-
-    initialState = createState(code, kernel_name);
-    updateState(initialState);
     history.replaceState(initialState, document.title, document.location.href);
 
     var zclipboard = new ZeroClipboard($('#save'));
 
+    window.zclipboard = zclipboard;
+
     zclipboard.on("ready", function(readyEvent){
 
       zclipboard.on("copy", function(event) {
-        var state = createState();
+        var state = shareCell.state();
 
         var newLoc = "?code=" + encodeURIComponent(state.code);
         newLoc = newLoc + "&kernel_name=" + state.kernel_name;
@@ -154,11 +99,12 @@ def explore(n=10):
     });
 
     window.onpopstate = function(event) {
-      updateState(event.state);
-    }
+      shareCell.replaceState(event.state);
+    };
 
-	});
-	</script>
+  });
+
+  </script>
 
   <script>
     (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
