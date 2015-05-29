@@ -6,8 +6,14 @@ ShareCell = function(code, kernel_name, nburl) {
 
   this.thebe = new Thebe({
     url: nburl,
-    kernel_name: kernel_name
+    kernel_name: kernel_name,
+    tmpnb_mode: false
   });
+
+  var initialState = this.state(code, kernel_name);
+
+  this.replaceState(initialState);
+  history.replaceState(initialState, document.title, document.location.href);
 
 };
 
@@ -37,6 +43,21 @@ ShareCell.prototype.replaceState = function(state) {
     this.thebe.cells[0].output_area.fromJSON(state.outputs);
   }
 };
+
+ShareCell.prototype.path = function() {
+  var state = this.state();
+  var newLoc = "?code=" + encodeURIComponent(state.code);
+  newLoc = newLoc + "&kernel_name=" + state.kernel_name;
+
+  if(JSON.stringify(history.state) !== JSON.stringify(state)) {
+    history.pushState(state, null, newLoc);
+  } else {
+    console.log("Cell still the same, not changing history.");
+  }
+
+  return newLoc;
+}
+
 
 
 /**
