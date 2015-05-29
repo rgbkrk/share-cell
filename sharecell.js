@@ -6,8 +6,7 @@ ShareCell = function(code, kernel_name, nburl) {
 
   this.thebe = new Thebe({
     url: nburl,
-    kernel_name: kernel_name,
-    tmpnb_mode: false
+    kernel_name: kernel_name
   });
 
   var initialState = this.state(code, kernel_name);
@@ -18,7 +17,7 @@ ShareCell = function(code, kernel_name, nburl) {
 };
 
 /**
- * Retrieve a state represented by 
+ * Retrieve a state represented by
  */
 ShareCell.prototype.state = function(code, kernel_name, outputs) {
     return {
@@ -56,7 +55,7 @@ ShareCell.prototype.path = function() {
   }
 
   return newLoc;
-}
+};
 
 
 
