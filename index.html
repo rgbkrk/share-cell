@@ -67,7 +67,7 @@ def explore(n=10):
       console.log('ready');
       zclipboard.on("copy", function(event) {
         console.log('copy time');
-        var params = shareCell.save();
+        var params = shareCell.path();
         // Copying the path before we end up redirecting
         var clipboard = event.clipboardData;
         var fullURL = location.protocol + '//' + location.host + location.pathname + params;
