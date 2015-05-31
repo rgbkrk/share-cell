@@ -34,7 +34,7 @@ def explore(n=10):
 
   <div class="share-cell">
     <div class="thebe_controls">
-      <button id="save">Get permalink</button>
+      <button id="save">Copy permalink</button>
     </div>
 
     <h2>About <a href="https://github.com/rgbkrk/share-cell">Share Cell</a></h2>
@@ -70,7 +70,10 @@ def explore(n=10):
     });
 
     zclipboard.on("aftercopy", function(event) {
-      $save.text("Copied permalink!").delay(800).text("Copy permalink");
+      $save.text("Copied permalink!");
+      window.setTimeout(function(){
+        $save.text("Copy permalink");
+      }, 800);
     });
 
     zclipboard.on("copy", function(event) {
