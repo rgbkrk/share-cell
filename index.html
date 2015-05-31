@@ -61,26 +61,26 @@ def explore(n=10):
 
     var shareCell = new ShareCell(code, kernel_name, nburl);
 
-    var zclipboard = new ZeroClipboard($('#save'));
-    var $bridge = $("#global-zeroclipboard-html-bridge");
+    var $save = $('#save');
+    var zclipboard = new ZeroClipboard($save);
 
     window.zclipboard = zclipboard;
     zclipboard.on("ready", function(readyEvent){
-      $bridge.data("placement", "left").attr("title", "Copy to clipboard").tooltip();
+      $save.text("Copy permalink");
+    });
 
-      zclipboard.on("copy", function(event) {
-        var params = shareCell.path();
-        // Copying the path before we end up redirecting
-        var clipboard = event.clipboardData;
-        var fullURL = location.protocol + '//' + location.host + location.pathname + params;
-        // This will get better with the use of the History API
-        clipboard.setData("text/plain", fullURL);
+    zclipboard.on("aftercopy", function(event) {
+      $save.text("Copied permalink!");
+    });
 
-      });
-
-      zclipboard.on("aftercopy", function(event) {
-        $bridge.attr("title", "Copied!").tooltip("fixTitle").tooltip("show").attr("title", "Copy to clipboard").tooltip("fixTitle");
-      });
+    zclipboard.on("copy", function(event) {
+      $save.text("Copying permalink");
+      var params = shareCell.path();
+      // Copying the path before we end up redirecting
+      var clipboard = event.clipboardData;
+      var fullURL = location.protocol + '//' + location.host + location.pathname + params;
+      // This will get better with the use of the History API
+      clipboard.setData("text/plain", fullURL);
     });
 
     window.onpopstate = function(event) {
