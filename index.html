@@ -66,6 +66,7 @@ def explore(n=10):
     zclipboard.on("ready", function(readyEvent){
       console.log('ready');
       zclipboard.on("copy", function(event) {
+        console.log('copy time');
         var params = shareCell.save();
         // Copying the path before we end up redirecting
         var clipboard = event.clipboardData;
