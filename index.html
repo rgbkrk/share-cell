@@ -62,6 +62,7 @@ def explore(n=10):
     var shareCell = new ShareCell(code, kernel_name, nburl);
 
     var zclipboard = new ZeroClipboard($('#save'));
+    window.zclipboard = zclipboard;
     zclipboard.on("ready", function(readyEvent){
       console.log('ready');
       zclipboard.on("copy", function(event) {
