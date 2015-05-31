@@ -70,11 +70,10 @@ def explore(n=10):
     });
 
     zclipboard.on("aftercopy", function(event) {
-      $save.text("Copied permalink!");
+      $save.text("Copied permalink!").delay(800).text("Copy permalink");
     });
 
     zclipboard.on("copy", function(event) {
-      $save.text("Copying permalink");
       var params = shareCell.path();
       // Copying the path before we end up redirecting
       var clipboard = event.clipboardData;
