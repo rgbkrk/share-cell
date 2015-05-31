@@ -60,9 +60,6 @@ def explore(n=10):
     var nburl = 'https://tmp23.tmpnb.org';
 
     var shareCell = new ShareCell(code, kernel_name, nburl);
-    window.onpopstate = function(event) {
-      shareCell.replaceState(event.state);
-    };
 
     var zclipboard = new ZeroClipboard($('#save'));
     zclipboard.on("ready", function(readyEvent){
@@ -77,6 +74,11 @@ def explore(n=10):
 
       });
     });
+
+    window.onpopstate = function(event) {
+      shareCell.replaceState(event.state);
+    };
+
   });
 
   </script>
