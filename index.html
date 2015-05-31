@@ -64,9 +64,7 @@ def explore(n=10):
     var zclipboard = new ZeroClipboard($('#save'));
     window.zclipboard = zclipboard;
     zclipboard.on("ready", function(readyEvent){
-      console.log('ready');
       zclipboard.on("copy", function(event) {
-        console.log('copy time');
         var params = shareCell.path();
         // Copying the path before we end up redirecting
         var clipboard = event.clipboardData;
